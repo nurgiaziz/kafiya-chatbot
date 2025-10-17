@@ -2,6 +2,9 @@ import streamlit as st
 
 if "GOOGLE_API_KEY" not in st.session_state:
     st.session_state["GOOGLE_API_KEY"] = ""
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+chat_history = st.session_state["chat_history"]
 
 st.title("ChatBot-Ku")
 
@@ -17,6 +20,9 @@ with col2:
         st.session_state["GOOGLE_API_KEY"] = api_key
 
 GOOGLE_API_KEY = st.session_state["GOOGLE_API_KEY"]
-st.write("API KEY Adalah", GOOGLE_API_KEY)
 
-st.button("Random Button")
+prompt = st.chat_input("Chat with AI")
+chat_history.append(prompt)
+for chat in chat_history:
+    with st.chat_message("User"):
+        st.markdown(chat)
