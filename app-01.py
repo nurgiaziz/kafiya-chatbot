@@ -12,9 +12,10 @@ os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 # Bikin system prompt
-chat_history = [
+chat_history = []
+chat_history.append(
     SystemMessage(content="You are a funny assistant that always joking."),
-]
+)
 
 while True:
     # Minta user memasukkan promptnya
