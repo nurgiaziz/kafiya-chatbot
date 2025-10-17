@@ -48,22 +48,24 @@ def display_chat_message(message):
         st.markdown(message.content)
 
 
-get_api_key_input()
-if not os.environ["GOOGLE_API_KEY"]:
-    st.stop()
-
-llm = load_llm()
-chat_history = get_chat_history()
-
-for chat in chat_history:
-    display_chat_message(chat)
-
-
-prompt = st.chat_input("Chat with AI")
-if prompt:
+def user_query_to_llm(chat_history):
+    prompt = st.chat_input("Chat with AI")
+    if not prompt:
+        st.stop()
     chat_history.append(HumanMessage(content=prompt))
     display_chat_message(chat_history[-1])
 
     response = llm.invoke(chat_history)
     chat_history.append(response)
     display_chat_message(chat_history[-1])
+
+
+# Main code
+get_api_key_input()
+if not os.environ["GOOGLE_API_KEY"]:
+    st.stop()
+llm = load_llm()
+chat_history = get_chat_history()
+for chat in chat_history:
+    display_chat_message(chat)
+user_query_to_llm(chat_history)
