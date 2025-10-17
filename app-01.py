@@ -11,7 +11,9 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 messages = [
     SystemMessage(content="You are a funny assistant that always joking."),
-    HumanMessage(content="What is AI?"),
 ]
+
+prompt = input("User: ")
+messages.append(HumanMessage(content=prompt))
 response = llm.invoke(messages)
-print(response.content)
+print("AI:", response.content)
