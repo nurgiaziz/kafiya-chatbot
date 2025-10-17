@@ -20,8 +20,8 @@ pip install streamlit
   python app-01.py
   ```
 
-- ChatBot via web
+- Basic streamlit
 
   ```
-  python app-02.py
+  streamlit run app-02.py
   ```
