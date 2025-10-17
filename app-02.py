@@ -1,11 +1,8 @@
 import os
 
 import streamlit as st
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
-chat_history = st.session_state["chat_history"]
 
 st.title("ChatBot-Ku")
 
@@ -34,14 +31,39 @@ def load_llm():
     return st.session_state["llm"]
 
 
+def get_chat_history():
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
+    return st.session_state["chat_history"]
+
+
+def display_chat_message(message):
+    if type(message) is HumanMessage:
+        role = "User"
+    elif type(message) is AIMessage:
+        role = "AI"
+    else:
+        role = "Unknown"
+    with st.chat_message(role):
+        st.markdown(message.content)
+
+
 get_api_key_input()
 if not os.environ["GOOGLE_API_KEY"]:
     st.stop()
 
 llm = load_llm()
+chat_history = get_chat_history()
+
+for chat in chat_history:
+    display_chat_message(chat)
+
 
 prompt = st.chat_input("Chat with AI")
-chat_history.append(prompt)
-for chat in chat_history:
-    with st.chat_message("User"):
-        st.markdown(chat)
+if prompt:
+    chat_history.append(HumanMessage(content=prompt))
+    display_chat_message(chat_history[-1])
+
+    response = llm.invoke(chat_history)
+    chat_history.append(response)
+    display_chat_message(chat_history[-1])
