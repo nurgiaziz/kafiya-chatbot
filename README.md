@@ -20,7 +20,7 @@ pip install streamlit
   python app-01.py
   ```
 
-- Basic streamlit
+- ChatBot via streamlit
 
   ```
   streamlit run app-02.py
