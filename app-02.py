@@ -2,11 +2,10 @@ import streamlit as st
 
 st.title("ChatBot-Ku")
 
-st.write("ChatBot bikinan Adib")
-
+st.write("Masukkan Google API Key")
 col1, col2 = st.columns((80, 20))
 with col1:
-    GOOGLE_API_KEY = st.text_input("")
+    GOOGLE_API_KEY = st.text_input("", label_visibility="collapsed")
 
 with col2:
     is_submit_pressed = st.button("Submit")
