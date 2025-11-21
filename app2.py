@@ -7,7 +7,7 @@ python app2.py
 import getpass
 import os
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 GOOGLE_API_KEY = getpass.getpass("Enter your API key: ")
