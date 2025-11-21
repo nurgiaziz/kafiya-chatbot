@@ -29,20 +29,26 @@ if "GOOGLE_API_KEY" not in os.environ:
 # Inisiasi client LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
 
+# Cek apakah resume sudah pernah diupload
 if "participant_resume" not in st.session_state:
+    # Jika belum, minta user upload
     uploaded_pdf = st.file_uploader("Upload CV", type="pdf")
     if uploaded_pdf:
+        # Jika ada resume yang diupload, load PDF-nya
         pdf_bytes = uploaded_pdf.read()
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-        text = "\n".join([page.get_text() for page in doc])
+        # Extract text dari PDF
+        text = "\n".join([page.get_text() for page in doc])  # type: ignore
+        # Simpan text PDF
         st.session_state["participant_resume"] = text
         st.rerun()
     st.stop()
+# Ambil resume yang sudah pernah diupload
 resume = st.session_state["participant_resume"]
 
 # Cek apakah data sebelumnya ttg message history sudah ada
 if "messages_history" not in st.session_state:
-    # Jika belum, bikin datanya, isinya hanya system message dulu
+    # Jika belum, bikin datanya, isinya hanya system message dulu, dengan resume sebagai context
     st.session_state["messages_history"] = [
         SystemMessage(
             "You are a resume reviewer, this is the resume you are going to review {context}".format(
