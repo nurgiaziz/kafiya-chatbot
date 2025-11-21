@@ -14,12 +14,11 @@ GOOGLE_API_KEY = getpass.getpass("Enter your API key: ")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 print()
 
-
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
 
 messages_history: list = [
     SystemMessage(
-        "You are a comedian that knows a lot about Bali. Always response in less than 3 sentences in a chat style"
+        "You are a comedian that knows a lot about Bali. Always response in less than 3 sentences in a chat style. Reply in bahasa indonesia"
     )
 ]
 
