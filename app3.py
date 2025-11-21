@@ -6,8 +6,13 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 st.title("My ChatBot")
 
-google_api_key = st.text_input("Google API Key", type="password")
-os.environ["GOOGLE_API_KEY"] = google_api_key
+if "GOOGLE_API_KEY" not in os.environ:
+    google_api_key = st.text_input("Google API Key", type="password")
+    start_button = st.button("Start")
+    if start_button:
+        os.environ["GOOGLE_API_KEY"] = google_api_key
+        st.rerun()
+
 
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
 
