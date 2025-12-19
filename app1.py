@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Applikasi Adib")
+st.title("Applikasi Adib 😊")
 
 st.markdown("Ini adalah aplikasi bikinan Adib")
 
