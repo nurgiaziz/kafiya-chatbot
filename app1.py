@@ -1,3 +1,9 @@
+"""
+Untuk menjalankan, lakukan di terminal
+
+>>> streamlit run app1.py
+"""
+
 import streamlit as st
 
 st.title("Applikasi Adib 😊")
