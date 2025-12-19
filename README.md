@@ -3,3 +3,4 @@
 Written by Mukhlas Adib
 Hacktiv8 in works with AVPN
 
+![diagram](./chatbot.png)
