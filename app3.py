@@ -29,10 +29,15 @@ llm =  ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct")
 
 # Bikin chat history kosong jika belum ada di session state
 if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
+    # Tambahkan system message seperlunya
+    st.session_state["chat_history"] = [
+        SystemMessage("You are a chatbot about cooking recipe. If you receive question not in this topic, you must say that you can't answer")
+    ]
 
 # Tampikan chat history yang ada sampai sekarang
 for chat in st.session_state["chat_history"]:
+    if type(chat) is SystemMessage:
+        continue
     role = "User" if type(chat) is HumanMessage else "AI"
     with st.chat_message(role):
         st.markdown(chat.content)
