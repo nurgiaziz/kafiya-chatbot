@@ -1,3 +1,9 @@
+"""
+Cara jalankan:
+
+>>> python app2.py
+"""
+
 import os
 import getpass
 
