@@ -22,3 +22,4 @@ while True:
     response = client.invoke(chat_history)
     print("AI:", response.content)
     print()
+

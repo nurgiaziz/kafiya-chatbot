@@ -1,72 +1,78 @@
-# Jalankan dengan
-# >>> streamlit run <nama file>
-#
-# Atau
-# >>> python -m streamlit run <nama file>
-#
-
 import os
-
-import streamlit as st
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
+from pypdf import PdfReader 
 
-st.title("My ChatBot")
-st.markdown("Demo chatbot oleh Mukhlas Adib")
+print("=== KAFIYA TERMINAL PDF CHATBOT ===")
 
-# Inisialisasi API Key kosong untuk pertama kali
-if "api_key" not in st.session_state:
-    st.session_state["api_key"] = ""
+# 1. Masukkan API Key Groq langsung di Terminal
+api_key = input("Masukkan Groq API Key Anda: ")
+os.environ["GROQ_API_KEY"] = api_key
 
-# Tampilkan input API key juga key belum ada
-if st.session_state["api_key"] == "":
-    input_api_key = st.text_input("API Key", type="password")
-    submit_key = st.button("Submit Key")
-    # Simplan API key hanya jika tombol submit ditekan
-    if submit_key:
-        st.session_state["api_key"] = input_api_key
-    if st.session_state["api_key"] != "":
-        st.rerun()
-    # Jangan tampilkan lainnya jika API key belum ada
-    st.stop()
-# Dari sini, hanya akan dirender jika API key sudah ada
-
-# Register API key ke env variable
-os.environ["GOOGLE_API_KEY"] = st.session_state["api_key"]
-os.environ["GROQ_API_KEY"] = st.session_state["api_key"]
-
-# Bikin client LLM
+# 2. Bikin client LLM Groq
 client = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct")
-# client = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
-# Inisialisasi chat history dengan system message untuk pertama kali
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = [SystemMessage("You are a funny comedian.")]
+# 3. Masukkan nama file PDF yang ingin dibaca
+# Pastikan file PDF-nya disimpan di dalam folder yang sama dengan 'app1.py'
+pdf_name = input("\nMasukkan nama file PDF Anda (contoh: data.pdf): ")
 
-# Display chat history bubble sampai sekarang
-for chat in st.session_state["chat_history"]:
-    if type(chat) is HumanMessage:
-        role = "human"
-    elif type(chat) is SystemMessage:
-        # Jangan tampilkan system prompt
+# Proses membaca file PDF
+pdf_context = ""
+try:
+    pdf_reader = PdfReader(pdf_name)
+    for page in pdf_reader.pages:
+        text = page.extract_text()
+        if text:
+            pdf_context += text + "\n"
+    print("✅ Berhasil membaca PDF dan memuatnya ke memori!")
+except Exception as e:
+    print(f"❌ Gagal membaca file. Pastikan file '{pdf_name}' ada di folder ini. Error: {e}")
+    exit()
+
+# 4. Inisialisasi riwayat obrolan kosong
+chat_history = []
+
+print("\nChatbot Siap! Ketik 'keluar' untuk mengakhiri obrolan.\n")
+
+# 5. Loop Obrolan di Terminal
+while True:
+    user_input = input("Anda: ")
+    if user_input.lower() == 'keluar':
+        print("Terima kasih!")
+        break
+        
+    if not user_input.strip():
         continue
-    else:
-        role = "ai"
-    with st.chat_message(role):
-        st.markdown(chat.content)
 
-# Minta input chat dari user
-user_input = st.chat_input("Chat here")
-if not user_input:
-    st.stop()
+    # Tambahkan input user ke riwayat
+    chat_history.append(HumanMessage(user_input))
 
-# Tambahkan input user ke history, dan langsung tampilkan di bubble
-st.session_state["chat_history"].append(HumanMessage(user_input))
-with st.chat_message("human"):
-    st.markdown(st.session_state["chat_history"][-1].content)
+    # Kunci instruksi agar LLM HANYA menjawab berdasarkan teks PDF dengan gaya yang sopan, detail, dan empati
+    system_prompt = SystemMessage(
+        f"""Anda adalah seorang asisten chatbot yang sangat profesional, ramah, penuh empati, dan mengutamakan sopan santun. Tugas utama Anda adalah MENJAWAB PERTANYAAN HANYA BERDASARKAN TEKS DOKUMEN DI BAWAH INI.
+        
+        Konteks Dokumen:
+        \"\"\"{pdf_context}\"\"\"
+        
+        Aturan Perilaku & Gaya Bahasa (Wajib):
+        1. Gunakan Bahasa Indonesia yang baik, benar, formal, namun tetap terasa hangat, penuh empati, dan bersahabat.
+        2. Mulailah atau sisipkan kalimat sapaan yang santun (seperti "Terima kasih atas pertanyaannya...", "Baik, berdasarkan dokumen yang Anda berikan...").
+        3. Berikan jawaban secara DETAIL, terstruktur, dan jelas agar mudah dipahami oleh pengguna. Jangan menjawab terlalu singkat jika informasi di dokumen cukup lengkap.
+        4. Tunjukkan rasa empati dan kesiapan untuk membantu di setiap respons Anda.
 
-# Jalankan LLM, dan rerun semuanya agar output LLM masuk ke bubble
-response = client.invoke(st.session_state["chat_history"])
-st.session_state["chat_history"].append(response)
-st.rerun()
+        Aturan Ketat Isi Jawaban:
+        1. Jawablah pertanyaan user HANYA menggunakan informasi yang ada di dalam Konteks Dokumen di atas.
+        2. Jika jawaban dari pertanyaan user TIDAK ADA di dalam teks dokumen tersebut, Anda WAJIB menolaknya dengan sangat sopan dan penuh empati, contoh: 'Mohon maaf yang sebesar-besarnya, setelah saya memeriksa dokumen yang Anda berikan, saya tidak berhasil menemukan informasi terkait hal tersebut. Apakah ada bagian lain dari dokumen yang ingin Anda tanyakan?'
+        3. Jangan pernah mengarang jawaban atau menggunakan pengetahuan luar Anda yang tidak tertulis di dokumen."""
+    )
+
+    # Gabungkan instruksi pembatas dengan riwayat obrolan
+    input_messages = [system_prompt] + chat_history
+
+    # Jalankan LLM Groq dan ambil responnya
+    print("Bot sedang berpikir...")
+    response = client.invoke(input_messages)
+    
+    # Tampilkan jawaban di Terminal dan simpan ke riwayat
+    print(f"Bot: {response.content}\n")
+    chat_history.append(response)
