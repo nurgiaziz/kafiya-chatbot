@@ -1,4 +1,1 @@
-# Scripts for AI for Data Science Bootcamp
-
-Written by Mukhlas Adib
-Hacktiv8 in works with AVPN
+# Final Project LLM-Based Tools and Gemini API Integration for Data Science
